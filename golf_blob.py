@@ -6,6 +6,8 @@ import cv2
 import requests
 import json
 
+TX_DATA = True  # set to enable/disable tranmsion of data.
+
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-v", "--video",
@@ -44,7 +46,6 @@ while True:
     # orig = cv2.imread("gball2.jpg", cv2.IMREAD_COLOR)
     (B, G, R) = cv2.split(cropped)
 
-
     # Set up the detector with default parameters.
     params = cv2.SimpleBlobDetector_Params()
 
@@ -55,10 +56,10 @@ while True:
 
     params.filterByArea = True
     params.maxArea = 40
-    params.minArea = 15
+    params.minArea = 10
 
-    params.filterByCircularity = False
-    params.minCircularity = .9
+    params.filterByCircularity = True
+    params.minCircularity = .5
 
     params.filterByConvexity = False
     params.minConvexity = 0.2
@@ -74,33 +75,36 @@ while True:
     # Detect blobs.
     keypoints = detector.detect(B)
     
-    if len(keypoints) > 0:
-        data = {}  
-        cnt = 0
-        for i in keypoints:
-            data['KeyPoint_%d'%cnt] = []  
-            data['KeyPoint_%d'%cnt].append({'x': i.pt[0]})
-            data['KeyPoint_%d'%cnt].append({'y': i.pt[1]})
-            data['KeyPoint_%d'%cnt].append({'size': i.size})
-            cnt+=1
     
+    if len(keypoints) > 0:
+        data = {}
+        
+        holder = []  # array of objects 
+
+        for i in keypoints:
+            obj = {};
+            obj['x'] = i.pt[0]
+            obj['y'] = i.pt[1]
+            obj['size'] = i.size
+            holder.append(obj)
+            
         #print(data)
         print(len(keypoints))
-        # send over data
-        try:
-            api_url = "http://192.168.1.73:3000/setkeypoints"
-            # data = { "key1": 1, "key2":3 , "points":  "hello" }
-            response = requests.post(api_url, json=data, timeout=1)
         
-        except requests.exceptions.RequestException as e: 
-             print("http error" ) 
+        # send over data
+        if TX_DATA == True:
+            try:
+                api_url = "http://192.168.1.73:3000/setkeypoints"
+                response = requests.post(api_url, json=holder, timeout=1)      
+            except requests.exceptions.RequestException as e: 
+                 print("http error" ) 
         
     
     # Draw detected blobs as red circles.
     # cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS ensures the size of the circle corresponds to the size of blob
-    # im_with_keypoints = cv2.drawKeypoints(cropped, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    im_with_keypoints = cv2.drawKeypoints(cropped, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
     # Show keypoints
-    # cv2.imshow("Keypoints", im_with_keypoints)
+    cv2.imshow("Keypoints", im_with_keypoints)
     # cv2.waitKey(0)
     
     key = cv2.waitKey(1) & 0xFF

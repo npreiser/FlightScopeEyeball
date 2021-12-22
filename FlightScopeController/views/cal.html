@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!--meta name="viewport" content="width=device-width, initial-scale=1"-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Home Lights</title>
+    <script src="javascripts/helper.js"></script>
+    <style>
+        body {font-family: Arial;}
+
+        .settingsheader {
+            height: 100px;
+            width: 100%;
+        }
+
+        .header_col {
+            height: 100px;
+            width: 50%;
+            font-size: large;
+            display: inline-block;
+        }
+        .settingsbody {
+            height: 200px;
+
+        }
+        .settings_row2 {
+            height: 100px;
+
+        }
+        .top-buffer { margin-top:12px; }
+
+         /* this i to make the tab at the top , very slim height */
+        .nav-tabs > li > a
+        {
+            /* adjust padding for height*/
+            padding-top: 3px;
+            padding-bottom: 3px;
+        }
+        /*.button_font_small{
+            font-family: "Arial Bold", Gadget, sans-serif;
+            font-style: normal;
+            font-size: 12px ! important; //to make fontsize bigger
+        }
+        .button_font_md{
+            font-family: "Arial Bold", Gadget, sans-serif;
+            font-style: normal;
+            font-size: 15px ! important; //to make fontsize bigger
+        }  */
+    </style>
+</head>
+<body onload="init()">
+<label id="message1" >hello</label><br>
+<div id="tableholder"></div>
+</body>
+</html>

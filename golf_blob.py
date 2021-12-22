@@ -84,9 +84,9 @@ while True:
 
         for i in keypoints:
             obj = {};
-            obj['x'] = i.pt[0]
-            obj['y'] = i.pt[1]
-            obj['size'] = i.size
+            obj['x'] = format(i.pt[0],".2f")
+            obj['y'] = format(i.pt[1],".2f")
+            obj['size'] = format(i.size,".2f")
             holder.append(obj)
             
         #print(data)

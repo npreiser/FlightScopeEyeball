@@ -7,6 +7,7 @@ import requests
 import json
 
 TX_DATA = True  # set to enable/disable tranmsion of data.
+TARGET_IP_ADDR = '192.168.1.73'
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -94,7 +95,7 @@ while True:
         # send over data
         if TX_DATA == True:
             try:
-                api_url = "http://192.168.1.73:3000/setkeypoints"
+                api_url = "http://"+TARGET_IP_ADDR+":3000/setkeypoints"
                 response = requests.post(api_url, json=holder, timeout=1)      
             except requests.exceptions.RequestException as e: 
                  print("http error" ) 

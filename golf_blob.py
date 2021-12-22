@@ -1,0 +1,111 @@
+from collections import deque
+import numpy as np
+import argparse
+import imutils
+import cv2
+import requests
+import json
+
+# construct the argument parse and parse the arguments
+ap = argparse.ArgumentParser()
+ap.add_argument("-v", "--video",
+	help="path to the (optional) video file")
+ap.add_argument("-b", "--buffer", type=int, default=64,
+	help="max buffer size")
+args = vars(ap.parse_args())
+
+def dump(obj):
+  for attr in dir(obj):
+    print("obj.%s = %r" % (attr, getattr(obj, attr)))
+
+
+# if a video path was not supplied, grab the reference
+# to the webcam
+if not args.get("video", False):
+	camera = cv2.VideoCapture(0)
+ 
+# otherwise, grab a reference to the video file
+else:
+	camera = cv2.VideoCapture(args["video"])
+
+# keep looping
+while True:
+	# grab the current frame
+    (grabbed, frame) = camera.read()
+    frame = imutils.rotate(frame, angle=180)
+    orig = frame
+
+    width = 640
+    height = 480
+    dim = (width, height)
+    resized = cv2.resize(orig, dim, interpolation = cv2.INTER_AREA)
+    cropped = resized[0:300, 0:600]
+    
+    # orig = cv2.imread("gball2.jpg", cv2.IMREAD_COLOR)
+    (B, G, R) = cv2.split(cropped)
+
+
+    # Set up the detector with default parameters.
+    params = cv2.SimpleBlobDetector_Params()
+
+    params.filterByColor = True
+    params.blobColor = 255
+    params.minThreshold = 120
+    params.maxThreshold = 255
+
+    params.filterByArea = True
+    params.maxArea = 30
+    params.minArea = 20
+
+    params.filterByCircularity = False
+    params.minCircularity = .9
+
+    params.filterByConvexity = False
+    params.minConvexity = 0.2
+    
+    params.filterByInertia = False
+    params.minInertiaRatio = 0.01
+
+   # dump(params) 
+
+    detector = cv2.SimpleBlobDetector_create(params)
+     
+    # Detect blobs.
+    keypoints = detector.detect(B)
+    
+    
+    data = {}  
+    cnt = 0
+    for i in keypoints:
+        data['KeyPoint_%d'%cnt] = []  
+        data['KeyPoint_%d'%cnt].append({'x': i.pt[0]})
+        data['KeyPoint_%d'%cnt].append({'y': i.pt[1]})
+        data['KeyPoint_%d'%cnt].append({'size': i.size})
+        cnt+=1
+    
+    print(data)
+    # send over data
+    # try:
+    #    api_url = "http://192.168.1.73:3000/setkeypoints"
+        # data = { "key1": 1, "key2":3 , "points":  "hello" }
+    #    response = requests.post(api_url, json=data, timeout=1)
+    
+    # except requests.exceptions.RequestException as e: 
+    #     print("http error" ) 
+        
+    
+    # Draw detected blobs as red circles.
+    # cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS ensures the size of the circle corresponds to the size of blob
+    im_with_keypoints = cv2.drawKeypoints(cropped, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    # Show keypoints
+    cv2.imshow("Keypoints", im_with_keypoints)
+    # cv2.waitKey(0)
+    
+    key = cv2.waitKey(1) & 0xFF
+    # if the 'q' key is pressed, stop the loop
+    if key == ord("q"):
+        break
+ 
+# cleanup the camera and close any open windows
+camera.release()
+cv2.destroyAllWindows()

@@ -9,23 +9,17 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-
+// fetch the cal page.
 router.get('/cal', function(req, res, next) {
-
   res.sendFile(path.join(app.get('views') + '/cal.html'));
 });
 
+//set(send) in keypoints from PI>
 router.post('/setkeypoints', function(req, res, next) {
 
- var bla = {};
- bla.hello = 0
-  bla.a1 = [];
- bla.a1.push("myarray")
-
   service.updateClients(req.body)
-  //console.log(JSON.stringify(req.body))
+  //console.log(JSON.stringify(req.body))  //for debug
   res.status(200).send("thankyou ")
- // res.render('index', { title: 'Express' });
 });
 
 

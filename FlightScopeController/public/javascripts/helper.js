@@ -11,13 +11,7 @@ function init()
         };
 
         ws.onmessage = function (evt) {    // handler for socket
-          //  cached_status = evt.data;
-
             var dataobj = JSON.parse(evt.data);
-
-        //    document.getElementById("message1").innerHTML = evt.data
-            //buildAllButtons();
-            //alert("Message is received..." + received_msg);
             buildTable(dataobj)
         };
 
@@ -25,15 +19,12 @@ function init()
             // websocket is closed.
             // alert("Connection is closed...");
         };
-
 }
-
 
 function buildTable(mydata)
 {
 
     // EXTRACT VALUE FOR HTML HEADER.
-    // ('Book ID', 'Book Name', 'Category' and 'Price')
     var col = [];
     for (var i = 0; i < mydata.length; i++) {
         for (var key in mydata[i]) {

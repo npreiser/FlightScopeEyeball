@@ -2,6 +2,8 @@ var WebSocket = require('ws');
 var wss = new WebSocket.Server({ port: 22888 });
 
 var wsclient = undefined;
+
+var latestdatabucket = undefined
 wss.on('connection', function connection(ws) {
     wsclient = ws;
     // ws.on('message', function incoming(message) {
@@ -12,6 +14,7 @@ wss.on('connection', function connection(ws) {
         wsclient = undefined;
     });
 });
+
 
 function dispatchData(data)
 {
@@ -24,5 +27,13 @@ var service = module.exports = {
      updateClients: function(data)
      {
          dispatchData(data) // send data out to the client web pages that are currently on (via web socket)
+     },
+     storeData: function(data)
+     {
+         latestdatabucket = data;
+     },
+     getCalData: function()
+     {
+         return latestdatabucket;
      }
 }

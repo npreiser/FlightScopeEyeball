@@ -21,6 +21,39 @@ function init()
         };
 }
 
+polltimer = undefined
+function init2()
+{
+  polltimer = setInterval(function(){
+      getCalDataAjax(function(data) {
+          var dataobj = JSON.parse(data);
+          buildTable(dataobj)
+          console.log(JSON.stringify(data))
+      })
+      // poll for data.
+  },2000)
+}
+
+
+function getCalDataAjax(callback) {
+
+    $.ajax({
+        url: "/getcaldata",
+        type: 'get',
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function (result) {
+            callback(result);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            if(xhr != undefined && xhr.responseText != undefined) {
+                window.location = "/error500";
+            }
+        }
+    });
+}
+
+
 function buildTable(mydata)
 {
 

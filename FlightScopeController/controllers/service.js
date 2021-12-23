@@ -23,10 +23,6 @@ var service = module.exports = {
 
      updateClients: function(data)
      {
-         dispatchData(data)
+         dispatchData(data) // send data out to the client web pages that are currently on (via web socket)
      }
-
-
-
-
 }

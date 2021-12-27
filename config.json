@@ -1,0 +1,8 @@
+{
+  "crop_y_start" : 120,
+  "crop_y_end" : 280,
+  "crop_x_start" : 0,
+  "crop_x_end" : 600,
+  "blobcolor" : 255,
+  "minthreshold" : 163
+}

@@ -5,9 +5,16 @@ import imutils
 import cv2
 import requests
 import json
+import time
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
 
 TX_DATA = True  # set to enable/disable tranmsion of data.
 TARGET_IP_ADDR = '192.168.1.73'
+
+# flag to reload config
+reload_config = True
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -31,8 +38,48 @@ if not args.get("video", False):
 else:
 	camera = cv2.VideoCapture(args["video"])
 
-# keep looping
+
+# setup file watcher
+class MyHandler(FileSystemEventHandler):
+    
+    def __init__(self, callback):
+        self.callback = callback
+        
+    def on_modified(self, event):
+        self.callback()
+        print(f'event type: {event.event_type}  path : {event.src_path}')
+
+
+if __name__ == "__main__":
+    
+    
+
+    def callback():
+        global reload_config
+        reload_config = True
+        print("File was modified")
+        
+        
+    event_handler = MyHandler(callback)
+    observer = Observer()
+    observer.schedule(event_handler, path='.', recursive=False)
+    observer.start()
+
+   
+# main loop
 while True:
+    
+    mycfg = ""
+    if reload_config == True:
+        print("loading config")
+        reload_config = False
+        f = open('config.json')
+        mycfg = json.load(f)
+        print(mycfg)
+        print(mycfg['crop_y_start'])
+        f.close()
+        
+    
 	# grab the current frame
     (grabbed, frame) = camera.read()
     frame = imutils.rotate(frame, angle=180)
@@ -43,6 +90,8 @@ while True:
     dim = (width, height)
     resized = cv2.resize(orig, dim, interpolation = cv2.INTER_AREA)
     cropped = resized[120:280, 0:600]
+    # cropped = resized[mycfg['crop_y_start']:mycfg['crop_y_end'], mycfg['crop_x_start']:mycfg['crop_x_end']]
+    
     
     # orig = cv2.imread("gball2.jpg", cv2.IMREAD_COLOR)
     (B, G, R) = cv2.split(cropped)
@@ -108,11 +157,16 @@ while True:
     cv2.imshow("Keypoints", im_with_keypoints)
     # cv2.waitKey(0)
     
+    
     key = cv2.waitKey(1) & 0xFF
     # if the 'q' key is pressed, stop the loop
     if key == ord("q"):
         break
  
+        
+    
 # cleanup the camera and close any open windows
+# observer.join()
+observer.stop()
 camera.release()
 cv2.destroyAllWindows()

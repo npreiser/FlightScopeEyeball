@@ -77,7 +77,7 @@ xstart=0
 xend=600
 ystart=120
 yend=280
-params = cv2.SimpleBlobDetector_Params()
+params = {}
 mycfg = {}
 
 while True:
@@ -120,10 +120,25 @@ while True:
             xend=mycfg['crop_x_end']
             ystart=mycfg['crop_y_start']
             yend=mycfg['crop_y_end']
-            params.filterByColor = mycfg['filterCyColor']
+            # create params object now. 
+            params = cv2.SimpleBlobDetector_Params()
+
+            params.filterByColor = mycfg['filterByColor']
             params.blobColor = mycfg['blobColor']
             params.minThreshold = mycfg['minColor']
             params.maxThreshold = mycfg['maxColor']
+             
+            params.filterByArea = mycfg['filterByArea']
+            params.maxArea = mycfg['maxArea']
+            params.minArea = mycfg['minArea']
+            params.filterByCircularity = mycfg['filterByCircularity']
+            params.minCircularity = mycfg['minCircularity']
+            params.filterByConvexity = mycfg['filterByConvexity']
+            params.minConvexity = mycfg['minConvexity']
+            params.maxConvexity = mycfg['maxConvexity']
+            params.filterByInertia = mycfg['filterByInertia']
+            params.minInertiaRatio = mycfg['minInertiaRatio']
+
 
         # grab the current frame
         (grabbed, frame) = camera.read()
@@ -137,26 +152,8 @@ while True:
 
         cropped = resized[ystart:yend, xstart:xend]
         
-        # orig = cv2.imread("gball2.jpg", cv2.IMREAD_COLOR)
         (B, G, R) = cv2.split(cropped)
 
-        # Set up the detector with default parameters.
-
-        params.filterByArea = True
-        params.maxArea = 40
-        params.minArea = 10
-
-        params.filterByCircularity = False
-        params.minCircularity = .5
-
-        params.filterByConvexity = False
-        params.minConvexity = 0.2
-        params.maxConvexity = 0.9
-        
-        params.filterByInertia = False
-        params.minInertiaRatio = 0.9
-
-    # dump(params) 
         detector = cv2.SimpleBlobDetector_create(params)
         # Detect blobs.
         keypoints = detector.detect(B)

@@ -8,9 +8,11 @@ import json
 import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+from stepper import forward, reverse, stepforward,stepreverse
 
+current_tray_position = 0 
 
-TX_DATA = True  # set to enable/disable tranmsion of data.
+TX_DATA = False  # set to enable/disable tranmsion of data.
 TARGET_IP_ADDR = '192.168.1.73'
 
 # flag to reload config
@@ -76,7 +78,7 @@ while True:
         f = open('config.json')
         mycfg = json.load(f)
         print(mycfg)
-        print(mycfg['crop_y_start'])
+        # print(mycfg['crop_y_start'])
         f.close()
         
     
@@ -90,7 +92,11 @@ while True:
     dim = (width, height)
     resized = cv2.resize(orig, dim, interpolation = cv2.INTER_AREA)
     cropped = resized[120:280, 0:600]
-    # cropped = resized[mycfg['crop_y_start']:mycfg['crop_y_end'], mycfg['crop_x_start']:mycfg['crop_x_end']]
+    # bla2 = {(mycfg['crop_y_start']:mycfg['crop_y_end'])}    
+    # bla = dict([(mycfg['crop_y_start'],mycfg['crop_y_end']),(mycfg['crop_x_start'],mycfg['crop_x_end'])])
+    #print(bla2)
+    # print(bla[0])              
+    #cropped = resized[bla[0], bla[1]]
     
     
     # orig = cv2.imread("gball2.jpg", cv2.IMREAD_COLOR)
@@ -127,7 +133,10 @@ while True:
     
     
     if len(keypoints) > 0:
-        data = {}
+        
+       
+        
+        # data = {}
         
         holder = []  # array of objects 
 
@@ -137,9 +146,11 @@ while True:
             obj['y'] = format(i.pt[1],".2f")
             obj['size'] = format(i.size,".2f")
             holder.append(obj)
+            # print(format(i.pt[0],".2f"))
             
         #print(data)
-        print(len(keypoints))
+        # print(len(keypoints))
+        
         
         # send over data
         if TX_DATA == True:
@@ -150,6 +161,47 @@ while True:
                  print("http error" ) 
         
     
+        #  office cord .  535  ... 345 .... 175
+        # 300 is dead center... +- 200 to each side. range = 100 : 300: 500
+        # 
+        # forward() # step forward... fixed ammount for now. 
+       #  move = False
+        STEP_FACTOR = 100  # how many steps per pixel... 
+        delta = 0
+        # its inverted..  increase in pixel position.. move revers(ccw) .. 
+        # map home(step = 0) to 535 x ball position.. 
+        # take position and sub 535. 
+        offset = 37
+        temp = int(500+offset - i.pt[0])   # calc target position 
+        direction = "R"
+        
+        if current_tray_position != temp:
+            print("target position %d" % temp) 
+        
+        if temp > current_tray_position:
+            delta = int(temp - current_tray_position)
+            direction = "F"
+        elif temp < current_tray_position:   
+            delta = int(current_tray_position - temp)
+            direction = "R"
+        else:
+            print("No need to move")
+        
+        
+        if delta > 0:
+            print("delta: "+format(delta,".2f") + "   dir: " + direction) 
+            if direction == "R":
+                stepreverse(delta*STEP_FACTOR)
+                print("moved backward: ")
+                current_tray_position -= delta
+                print("current tray pos: %d" % (current_tray_position))
+            elif direction == "F":
+                stepforward(delta*STEP_FACTOR)
+                print("moved forward: ")
+                current_tray_position += delta
+                print("current tray pos: %d" % (current_tray_position))
+                
+
     # Draw detected blobs as red circles.
     # cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS ensures the size of the circle corresponds to the size of blob
     im_with_keypoints = cv2.drawKeypoints(cropped, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)

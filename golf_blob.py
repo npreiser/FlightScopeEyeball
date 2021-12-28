@@ -1,6 +1,8 @@
 from collections import deque
 import numpy as np
 import argparse
+
+from numpy.core.numeric import True_
 import imutils
 import cv2
 import requests
@@ -75,6 +77,12 @@ if __name__ == "__main__":
 
 initIO()
 # main loop
+
+xstart=0
+xend=600
+ystart=120
+yend=280
+
 while True:
     
     # update local manual or auto mode 
@@ -98,18 +106,18 @@ while True:
                 stepforward(1000)
                 print("Moved manual right position")
     else:
-
         mycfg = ""
         if reload_config == True:
             print("loading config")
             reload_config = False
             f = open('config.json')
             mycfg = json.load(f)
-            # print(mycfg)
-            # print(mycfg['crop_y_start'])
             f.close()
-            
-        
+            xstart=mycfg['crop_x_start']
+            xend=mycfg['crop_x_end']
+            ystart=mycfg['crop_y_start']
+            yend=mycfg['crop_y_end']
+
         # grab the current frame
         (grabbed, frame) = camera.read()
         frame = imutils.rotate(frame, angle=180)
@@ -119,13 +127,8 @@ while True:
         height = 480
         dim = (width, height)
         resized = cv2.resize(orig, dim, interpolation = cv2.INTER_AREA)
-        cropped = resized[120:280, 0:600]
-        # bla2 = {(mycfg['crop_y_start']:mycfg['crop_y_end'])}    
-        # bla = dict([(mycfg['crop_y_start'],mycfg['crop_y_end']),(mycfg['crop_x_start'],mycfg['crop_x_end'])])
-        #print(bla2)
-        # print(bla[0])              
-        #cropped = resized[bla[0], bla[1]]
-        
+
+        cropped = resized[ystart:yend, xstart:xend]
         
         # orig = cv2.imread("gball2.jpg", cv2.IMREAD_COLOR)
         (B, G, R) = cv2.split(cropped)

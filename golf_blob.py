@@ -56,24 +56,18 @@ class MyHandler(FileSystemEventHandler):
         print(f'event type: {event.event_type}  path : {event.src_path}')
 
 
-
-
 if __name__ == "__main__":
     
-    
-
     def callback():
         global reload_config
         reload_config = True
         print("File was modified")
         
-        
+  
     event_handler = MyHandler(callback)
     observer = Observer()
     observer.schedule(event_handler, path='.', recursive=False)
     observer.start()
-
-   
 
 initIO()
 # main loop
@@ -89,14 +83,19 @@ while True:
     temp = ismanualmode()
     if temp != MANUAL_MODE: # if its changed... 
         MANUAL_MODE = temp
-        print("manual auto mode switched:  %s " % MANUAL_MODE)
+        modename = "Manual"
+        if MANUAL_MODE == False:
+            modename = "Auto"
+        print("manual auto mode switched:  %s " % modename)
         
    
     if MANUAL_MODE == True:  # if you are in manual mode, check position, 
         temppos = manualpositionleft()
         if temppos != MANUAL_POSITION:
             MANUAL_POSITION = temppos
-            print("Manul Position switched: %s " % MANUAL_POSITION)
+           
+            
+            print("Manaul Position switched: %s " % MANUAL_POSITION)
 
             # move to the other side.. # true left,  false right, 
             if MANUAL_POSITION == True:
@@ -105,7 +104,10 @@ while True:
             else:
                 stepforward(1000)
                 print("Moved manual right position")
+
+
     else:
+
         mycfg = ""
         if reload_config == True:
             print("loading config")
@@ -136,16 +138,16 @@ while True:
         # Set up the detector with default parameters.
         params = cv2.SimpleBlobDetector_Params()
 
-        params.filterByColor = True
-        params.blobColor = 255
-        params.minThreshold = 160
-        params.maxThreshold = 255
+        params.filterByColor = mycfg['filterCyColor']
+        params.blobColor = mycfg['blobColor']
+        params.minThreshold = mycfg['minColor']
+        params.maxThreshold = mycfg['maxColor']
 
         params.filterByArea = True
         params.maxArea = 40
         params.minArea = 10
 
-        params.filterByCircularity = True
+        params.filterByCircularity = False
         params.minCircularity = .5
 
         params.filterByConvexity = False
@@ -156,19 +158,12 @@ while True:
         params.minInertiaRatio = 0.9
 
     # dump(params) 
-
         detector = cv2.SimpleBlobDetector_create(params)
-        
         # Detect blobs.
         keypoints = detector.detect(B)
-        
-        
+        # if more than 0 points detected.       
         if len(keypoints) > 0:
-            
-        
-            
-            # data = {}
-            
+
             holder = []  # array of objects 
 
             for i in keypoints:
@@ -182,8 +177,8 @@ while True:
             #print(data)
             # print(len(keypoints))
             
-            
-            # send over data
+
+            # send over data to node ##############################################
             if TX_DATA == True:
                 try:
                     api_url = "http://"+TARGET_IP_ADDR+":3000/setkeypoints"

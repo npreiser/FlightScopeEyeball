@@ -52,8 +52,9 @@ class MyHandler(FileSystemEventHandler):
         self.callback = callback
         
     def on_modified(self, event):
-        self.callback()
-        print(f'event type: {event.event_type}  path : {event.src_path}')
+        if event.src_path == "./config.json":
+            self.callback()
+        #print(f'event type: {event.event_type}  path : {event.src_path}')
 
 
 if __name__ == "__main__":
@@ -61,7 +62,7 @@ if __name__ == "__main__":
     def callback():
         global reload_config
         reload_config = True
-        print("File was modified")
+        print("config.json file was modified")
         
   
     event_handler = MyHandler(callback)
@@ -76,6 +77,8 @@ xstart=0
 xend=600
 ystart=120
 yend=280
+params = cv2.SimpleBlobDetector_Params()
+mycfg = {}
 
 while True:
     
@@ -107,8 +110,6 @@ while True:
 
 
     else:
-
-        mycfg = ""
         if reload_config == True:
             print("loading config")
             reload_config = False
@@ -119,6 +120,10 @@ while True:
             xend=mycfg['crop_x_end']
             ystart=mycfg['crop_y_start']
             yend=mycfg['crop_y_end']
+            params.filterByColor = mycfg['filterCyColor']
+            params.blobColor = mycfg['blobColor']
+            params.minThreshold = mycfg['minColor']
+            params.maxThreshold = mycfg['maxColor']
 
         # grab the current frame
         (grabbed, frame) = camera.read()
@@ -136,12 +141,6 @@ while True:
         (B, G, R) = cv2.split(cropped)
 
         # Set up the detector with default parameters.
-        params = cv2.SimpleBlobDetector_Params()
-
-        params.filterByColor = mycfg['filterCyColor']
-        params.blobColor = mycfg['blobColor']
-        params.minThreshold = mycfg['minColor']
-        params.maxThreshold = mycfg['maxColor']
 
         params.filterByArea = True
         params.maxArea = 40

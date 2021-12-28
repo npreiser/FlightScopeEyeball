@@ -1,0 +1,21 @@
+{
+  "crop_y_start" : 120,
+  "crop_y_end" : 270,
+  "crop_x_start" : 0,
+  "crop_x_end" : 600,
+  "filterByColor" : true,
+  "blobColor" : 255,
+  "minColor" : 160,
+  "maxColor" : 255,
+  "filterByArea" : true,
+  "maxArea" :  40,
+  "minArea" : 10,
+  "filterByCircularity" : true,
+  "minCircularity" : 0.5,
+  "filterByConvexity" : false,
+  "minConvexity" :  0.2,
+  "maxConvexity" : 0.9,
+  "filterByInertia" : false,
+  "minInertiaRatio" : 0.9
+
+}

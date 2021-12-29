@@ -1,5 +1,9 @@
 const fs = require('fs');
-var latestdatabucket = { "testdata" : "hello" }
+
+
+
+
+var latestdatabucket = [{ "x" : "200", "y" : "200", "size": "300" },{ "x" : "200", "y" : "666", "size": "300" } ]
 var currentconfig = {};
 
 var service = module.exports = {

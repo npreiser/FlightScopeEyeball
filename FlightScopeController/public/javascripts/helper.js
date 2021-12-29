@@ -10,6 +10,13 @@ function init2()
         refreshConfigItems(data);
     })
 
+    getCalDataAjax(function(data) {
+        var dataobj = data;
+        buildTable(dataobj)
+        console.log(JSON.stringify(data))
+    })
+
+
     polltimer = setInterval(function(){
         getCalDataAjax(function(data) {
             var dataobj = data;
@@ -17,7 +24,7 @@ function init2()
             console.log(JSON.stringify(data))
         })
         // poll for data.
-    },2000)
+    },5000)
 
     document.getElementById("btnsave").onclick = function(){
 

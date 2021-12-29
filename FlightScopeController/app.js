@@ -38,4 +38,7 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+var service = require('./controllers/service.js');
+service.runchildproc();
+
 module.exports = app;

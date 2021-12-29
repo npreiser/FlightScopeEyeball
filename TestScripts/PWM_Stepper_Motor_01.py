@@ -38,17 +38,53 @@ print('ENA = GPIO 22 - RPi 3B-Pin #15')
 print('Initialization Completed')
 #
 # Could have usesd only one DURATION constant but chose two. This gives play options.
-durationFwd = 5000 # This is the duration of the motor spinning. used for forward direction
-durationBwd = 5000 # This is the duration of the motor spinning. used for reverse direction
+durationFwd = 2000 # This is the duration of the motor spinning. used for forward direction
+durationBwd = 2000 # This is the duration of the motor spinning. used for reverse direction
 print('Duration Fwd set to ' + str(durationFwd))
 print('Duration Bwd set to ' + str(durationBwd))
 #
-delay = 0.0000001 # This is actualy a delay between PUL pulses - effectively sets the mtor rotation speed.
+delay = 0.00031 # This is actualy a delay between PUL pulses - effectively sets the mtor rotation speed.
 print('Speed set to ' + str(delay))
 #
 cycles = 1000 # This is the number of cycles to be run once program is started.
 cyclecount = 0 # This is the iteration of cycles to be run once program is started.
 print('number of Cycles to Run set to ' + str(cycles))
+#
+#
+def takesteps(stepcount, direction):
+    GPIO.output(ENA, GPIO.HIGH)
+    sleep(.5) # pause due to a possible change direction
+    if direction == 0:
+        GPIO.output(DIR, GPIO.LOW)  # LEFT 
+    else: 
+        GPIO.output(DIR, GPIO.HIGH)  # Right (forward)
+  
+    accend = 500
+    dccstart = stepcount-500  # decel starts at end-500 steps
+
+    mydelay = .001
+
+    # accel range
+    for x in range(stepcount): 
+        GPIO.output(PUL, GPIO.HIGH)
+        sleep(mydelay)
+        GPIO.output(PUL, GPIO.LOW)
+        sleep(mydelay)
+        
+        if x < accend:
+            if x % 10 == 0:  # evey 10 steps  
+                mydelay -= .000012 # reduce delay down.. 
+                print("delay %s" % mydelay)
+        if x > dccstart:
+            if x % 10 == 0:
+                mydelay += .000012  #  ramp delay up = slow it down... 
+                print("delay %s" % mydelay)
+
+    GPIO.output(ENA, GPIO.LOW)  # disable
+  
+    sleep(.5) # pause for possible change direction
+    return   
+
 #
 #
 def forward():
@@ -57,7 +93,7 @@ def forward():
     print('ENA set to HIGH - Controller Enabled')
     #
     sleep(.5) # pause due to a possible change direction
-    GPIO.output(DIR, GPIO.LOW)
+    GPIO.output(DIR, GPIO.HIGH)
     # GPIO.output(DIRI, GPIO.LOW)
     print('DIR set to LOW - Moving Forward at ' + str(delay))
     print('Controller PUL being driven.')
@@ -79,7 +115,7 @@ def reverse():
     print('ENA set to HIGH - Controller Enabled')
     #
     sleep(.5) # pause due to a possible change direction
-    GPIO.output(DIR, GPIO.HIGH)
+    GPIO.output(DIR, GPIO.LOW)
     # GPIO.output(DIRI, GPIO.HIGH)
     print('DIR set to HIGH - Moving Backward at ' + str(delay))
     print('Controller PUL being driven.')
@@ -96,6 +132,8 @@ def reverse():
     return
 
 while cyclecount < cycles:
+    # takesteps(2000,0)
+    # takesteps(2000,1)
     forward()
     reverse()
     cyclecount = (cyclecount + 1)

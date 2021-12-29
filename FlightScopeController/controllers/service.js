@@ -26,6 +26,9 @@ var service = module.exports = {
 
     runchildproc: function()
     {
+       // added test comment
+       
+       
         console.log("python path: " + process.env.SCOPE_PYTHON_PATH);
         console.log("script path: " + process.env.SCOPE_PYTHON_SCRIPT);
         var spawn = require('child_process').spawn

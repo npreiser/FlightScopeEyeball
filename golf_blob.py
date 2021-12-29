@@ -14,7 +14,7 @@ from stepper import stepforward,stepreverse,ismanualmode,manualpositionleft,init
 
 current_tray_position = 0 
 
-HEADLESS = True
+HEADLESS = False
 TX_DATA = True  # set to enable/disable tranmsion of data.
 # TARGET_IP_ADDR = '192.168.1.73'
 TARGET_IP_ADDR = 'localhost'

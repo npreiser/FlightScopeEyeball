@@ -22,30 +22,30 @@ function init2()
     document.getElementById("btnsave").onclick = function(){
 
         var data = {};
-        data.crop_y_start = document.getElementById("cropys").value;
-        data.crop_y_end = document.getElementById("cropye").value;
+        data.crop_y_start = parseInt(document.getElementById("cropys").value);
+        data.crop_y_end = parseInt(document.getElementById("cropye").value);
 
-        data.crop_x_start = document.getElementById("cropxs").value;
-        data.crop_x_end = document.getElementById("cropxe").value;
+        data.crop_x_start = parseInt(document.getElementById("cropxs").value);
+        data.crop_x_end = parseInt(document.getElementById("cropxe").value);
 
         data.filterByColor = document.getElementById("fbc").checked;
-        data.blobColor = document.getElementById("blobcolor").value;
-        data.minColor = document.getElementById("mincolor").value;
-        data.maxColor =  document.getElementById("maxcolor").value;
+        data.blobColor = parseInt(document.getElementById("blobcolor").value);
+        data.minColor = parseInt(document.getElementById("mincolor").value);
+        data.maxColor =  parseInt(document.getElementById("maxcolor").value);
 
         data.filterByArea = document.getElementById("fba").checked;
-        data.minArea = document.getElementById("minarea").value;
-        data.maxArea = document.getElementById("maxarea").value;
+        data.minArea = parseInt(document.getElementById("minarea").value);
+        data.maxArea = parseInt(document.getElementById("maxarea").value);
 
         data.filterByCircularity = document.getElementById("fbcir").checked;
-        data.minCircularity = document.getElementById("mincircle").value;
+        data.minCircularity = parseInt(document.getElementById("mincircle").value);
 
         data.filterByConvexity = document.getElementById("fbcon").checked;
-        data.minConvexity = document.getElementById("mincon").value;
-        data.maxConvexity = document.getElementById("maxcon").value;
+        data.minConvexity = parseInt(document.getElementById("mincon").value);
+        data.maxConvexity = parseInt(document.getElementById("maxcon").value);
 
         data.filterByInertia =  document.getElementById("fbi").checked;
-        data.minInertiaRatio =document.getElementById("mini").value;
+        data.minInertiaRatio =parseInt(document.getElementById("mini").value);
 
         setConfig(data,function(retconfig) {
             cached_config = retconfig;

@@ -16,7 +16,7 @@ router.get('/cal', function(req, res, next) {
 //set(send) in keypoints from PI>
 router.post('/setkeypoints', function(req, res, next) {
 
-  service.storeData(JSON.stringify(req.body));  //store . and poll
+  service.storeData(req.body);  //store . and poll
   //console.log(JSON.stringify(req.body))  //for debug
   res.status(200).send("thankyou ")
 });

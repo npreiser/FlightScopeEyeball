@@ -24,7 +24,7 @@ function init2()
             console.log(JSON.stringify(data))
         })
         // poll for data.
-    },5000)
+    },3000)
 
     document.getElementById("btnsave").onclick = function(){
 

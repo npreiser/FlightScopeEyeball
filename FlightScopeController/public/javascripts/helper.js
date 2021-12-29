@@ -1,38 +1,133 @@
 
 
-
-function init()
-{
-    ws = new WebSocket("ws://192.168.1.73:22888/");
-
-        ws.onopen = function() {
-
-            console.log("ws is open !!!")
-        };
-
-        ws.onmessage = function (evt) {    // handler for socket
-            var dataobj = JSON.parse(evt.data);
-            buildTable(dataobj)
-        };
-
-        ws.onclose = function() {
-            // websocket is closed.
-            // alert("Connection is closed...");
-        };
-}
-
 polltimer = undefined
+
+cached_config = {}
 function init2()
 {
-  polltimer = setInterval(function(){
-      getCalDataAjax(function(data) {
-          var dataobj = JSON.parse(data);
-          buildTable(dataobj)
-          console.log(JSON.stringify(data))
-      })
-      // poll for data.
-  },2000)
+    getConfigAjax(function(data){
+        cached_config = data;
+        refreshConfigItems(data);
+    })
+
+    polltimer = setInterval(function(){
+        getCalDataAjax(function(data) {
+            var dataobj = data;
+            buildTable(dataobj)
+            console.log(JSON.stringify(data))
+        })
+        // poll for data.
+    },2000)
+
+    document.getElementById("btnsave").onclick = function(){
+
+        var data = {};
+        data.crop_y_start = document.getElementById("cropys").value;
+        data.crop_y_end = document.getElementById("cropye").value;
+
+        data.crop_x_start = document.getElementById("cropxs").value;
+        data.crop_x_end = document.getElementById("cropxe").value;
+
+        data.filterByColor = document.getElementById("fbc").checked;
+        data.blobColor = document.getElementById("blobcolor").value;
+        data.minColor = document.getElementById("mincolor").value;
+        data.maxColor =  document.getElementById("maxcolor").value;
+
+        data.filterByArea = document.getElementById("fba").checked;
+        data.minArea = document.getElementById("minarea").value;
+        data.maxArea = document.getElementById("maxarea").value;
+
+        data.filterByCircularity = document.getElementById("fbcir").checked;
+        data.minCircularity = document.getElementById("mincircle").value;
+
+        data.filterByConvexity = document.getElementById("fbcon").checked;
+        data.minConvexity = document.getElementById("mincon").value;
+        data.maxConvexity = document.getElementById("maxcon").value;
+
+        data.filterByInertia =  document.getElementById("fbi").checked;
+        data.minInertiaRatio =document.getElementById("mini").value;
+
+        setConfig(data,function(retconfig) {
+            cached_config = retconfig;
+            refreshConfigItems(retconfig);
+        })
+    }
+
+
+
 }
+
+function getConfigAjax(callback) {
+
+    $.ajax({
+        url: "/getconfig",
+        type: 'get',
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function (result) {
+            callback(result);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            if(xhr != undefined && xhr.responseText != undefined) {
+                window.location = "/error500";
+            }
+        }
+    });
+}
+
+
+
+function setConfig(obj, callback) {
+
+    var dataset = JSON.stringify(obj);
+    $.ajax({
+        url: "/setconfig",
+        type: 'post',
+        data: dataset,
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function (result) {
+            callback(result);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            if(xhr != undefined && xhr.responseText != undefined) {
+                window.location = "/error500";
+            }
+        }
+    });
+}
+
+
+function refreshConfigItems(data)
+{
+    document.getElementById("cropys").value = data.crop_y_start;
+
+    document.getElementById("cropye").value = data.crop_y_end;
+    document.getElementById("cropxs").value = data.crop_x_start;
+    document.getElementById("cropxe").value = data.crop_x_end;
+
+    document.getElementById("fbc").checked = data.filterByColor;
+    document.getElementById("blobcolor").value = data.blobColor;
+    document.getElementById("mincolor").value = data.minColor;
+    document.getElementById("maxcolor").value = data.maxColor;
+
+    document.getElementById("fba").checked = data.filterByArea;
+    document.getElementById("minarea").value = data.minArea;
+    document.getElementById("maxarea").value = data.maxArea;
+
+    document.getElementById("fbcir").checked = data.filterByCircularity;
+    document.getElementById("mincircle").value = data.minCircularity;
+
+    document.getElementById("fbcon").checked = data.filterByConvexity;
+    document.getElementById("mincon").value = data.minConvexity;
+    document.getElementById("maxcon").value = data.maxConvexity;
+
+    document.getElementById("fbi").checked = data.filterByInertia;
+    document.getElementById("mini").value = data.minInertiaRatio;
+
+}
+
+
 
 
 function getCalDataAjax(callback) {

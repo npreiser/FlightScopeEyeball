@@ -40,6 +40,8 @@ app.use(function (err, req, res, next) {
 
 var service = require('./controllers/service.js');
 
+service.init();
+
 if (process.arch == "arm") {
   service.runchildproc();
 }

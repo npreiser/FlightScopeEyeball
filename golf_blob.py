@@ -14,8 +14,10 @@ from stepper import stepforward,stepreverse,ismanualmode,manualpositionleft,init
 
 current_tray_position = 0 
 
-TX_DATA = False  # set to enable/disable tranmsion of data.
-TARGET_IP_ADDR = '192.168.1.73'
+HEADLESS = True
+TX_DATA = True  # set to enable/disable tranmsion of data.
+# TARGET_IP_ADDR = '192.168.1.73'
+TARGET_IP_ADDR = 'localhost'
 
 MANUAL_MODE = True #  determined by gpio 2 (pin 3) , if true manual, if false,= auto mode 
 MANUAL_POSITION = True  # true = left  false == right,, 
@@ -113,7 +115,7 @@ while True:
         if reload_config == True:
             print("loading config")
             reload_config = False
-            f = open('config.json')
+            f = open('/home/pi/A_localGit/FlightScopeEyeball/config.json')
             mycfg = json.load(f)
             f.close()
             xstart=mycfg['crop_x_start']
@@ -227,12 +229,11 @@ while True:
 
         # Draw detected blobs as red circles.
         # cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS ensures the size of the circle corresponds to the size of blob
-        im_with_keypoints = cv2.drawKeypoints(cropped, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-        # Show keypoints
-        cv2.imshow("Keypoints", im_with_keypoints)
-        # cv2.waitKey(0)
-        
-        
+        if HEADLESS == False:
+            im_with_keypoints = cv2.drawKeypoints(cropped, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+      
+            cv2.imshow("Keypoints", im_with_keypoints)    # Show keypoints
+     
         key = cv2.waitKey(1) & 0xFF
         # if the 'q' key is pressed, stop the loop
         if key == ord("q"):

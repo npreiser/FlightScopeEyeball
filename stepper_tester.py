@@ -2,7 +2,7 @@ from stepper import gohome,takesteps,ismanualmode,manualpositionleft,initIO,clea
 
 
 initIO()
-# booger
+#
 
 current_tray_position = 0
 modeswitch_debounce = 0

@@ -1,16 +1,13 @@
-# Based on: https://www.raspberrypi.org/forums/viewtopic.php?t=242928\.
-#
 from time import sleep
 import RPi.GPIO as GPIO
-# input pins (for mode / position. )
-MANUAL_AUTO_PIN = 2
-MANUAL_POSITION_PIN = 3
 #
-PUL = 17  # Stepper Drive Pulses
-DIR = 27  # Controller Direction Bit (High for Controller default / LOW to Force a Direction Change).
-ENA = 22  # Controller Enable Bit (High to Enable / LOW to Disable).
-
-delay = .0000001 #.1us 
+PUL = 17  # 
+DIR = 27  # 
+ENA = 22  # 
+# mode/dir /home 
+MODE = 2
+MANUAL_DIR = 3
+HOME_DETECT = 4
 
 def initIO():
     print('IO Initialization Start')
@@ -18,66 +15,96 @@ def initIO():
     GPIO.setup(PUL, GPIO.OUT)
     GPIO.setup(DIR, GPIO.OUT)
     GPIO.setup(ENA, GPIO.OUT)
-    GPIO.setup(MANUAL_AUTO_PIN, GPIO.IN)
-    GPIO.setup(MANUAL_POSITION_PIN, GPIO.IN)
+    GPIO.setup(MODE, GPIO.IN)
+    GPIO.setup(MANUAL_DIR, GPIO.IN)
+    GPIO.setup(HOME_DETECT, GPIO.IN)
+
     print('IO Initialization Complete')
 #
 #
-def cleanupIO():
+def cleanupIO(): 
     print('IO Cleanup started')
     GPIO.cleanup() # run this just to make sure 
 #
 #
+
 def ismanualmode():
-    ismanual = GPIO.input(MANUAL_AUTO_PIN)
-    return ismanual
+    ismanual = GPIO.input(MODE)
+    return not ismanual
+#
+#
+def ishome():  # normally 1  means  that 0 = is home. 
+    ishome = GPIO.input(HOME_DETECT)
+    return not ishome
 #
 #
 def manualpositionleft():
-    posleft = GPIO.input(MANUAL_POSITION_PIN)
-    return posleft
+    posleft = GPIO.input(MANUAL_DIR)
+    return not posleft
 #    
-#    
-def stepforward(stepcount):
+
+def gohome():
+    GPIO.output(ENA, GPIO.LOW)
+
+    GPIO.output(DIR, GPIO.HIGH)
+  
+    for y in range(5000):
+        GPIO.output(PUL, GPIO.HIGH)
+        GPIO.output(PUL, GPIO.LOW)
+        sleep(.001)
+        if ishome():
+            break
+   
     GPIO.output(ENA, GPIO.HIGH)
-    # GPIO.output(ENAI, GPIO.HIGH)
-   # print('ENA set to HIGH - Controller Enabled')
-    #
+#
+#
+def takesteps(stepcount, direction):
+   
     sleep(.1) # pause due to a possible change direction
-    GPIO.output(DIR, GPIO.LOW)
-    # GPIO.output(DIRI, GPIO.LOW)
-   # print('DIR set to LOW - Moving Forward at ' + str(delay))
-   # print('Controller PUL being driven.')
+    GPIO.output(ENA, GPIO.LOW) # enable 
+
+
+    if direction == 0:
+        GPIO.output(DIR, GPIO.LOW)  # RIGHT 
+    else: 
+        GPIO.output(DIR, GPIO.HIGH)  # LEFT
+  
+  # PARAMS for acceleration /decel..
+    ACC_DCC_WINDOW_STEPS = 500 # how big of a window to accel or decel over .. 
+    ACC_DCC_RATE = .000001 # rate at which to inc/dec the delay... 
+
+    accend = ACC_DCC_WINDOW_STEPS
+    dccstart = stepcount-ACC_DCC_WINDOW_STEPS  # decel starts at end-500 steps
+
+    mydelay = .001  # starting delay.. it will inc/dec from here... 
+
+    # accel range
+    printmax = False
     for x in range(stepcount): 
         GPIO.output(PUL, GPIO.HIGH)
-        sleep(delay)
+        # sleep(mydelay)
         GPIO.output(PUL, GPIO.LOW)
-        sleep(delay)
-    GPIO.output(ENA, GPIO.LOW)
-    # GPIO.output(ENAI, GPIO.LOW)
-   # print('ENA set to LOW - Controller Disabled')
-    sleep(.5) # pause for possible change direction
+        sleep(mydelay)
+        
+        if x < accend:
+            #if x % 10 == 0:  # evey 10 steps  
+            mydelay -= ACC_DCC_RATE # reduce delay down.. 
+                # print("delay %s" % mydelay)
+        elif x > dccstart:
+            #if x % 10 == 0:
+            mydelay += ACC_DCC_RATE  #  ramp delay up = slow it down... 
+                # print("delay %s" % mydelay)
+        else:
+            if printmax == False:
+                printmax = True
+                print("max speed delay:  %5f" % mydelay)
+
+    # GPIO.output(ENA, GPIO.LOW)  # disable
+   # sleep(.5) # pause for possible change direction
+    GPIO.output(ENA, GPIO.HIGH) # disable, free up the motor. 
     return   
-#
-#
-def stepreverse(stepcount):
-    GPIO.output(ENA, GPIO.HIGH)
-    # GPIO.output(ENAI, GPIO.HIGH)
-   # print('ENA set to HIGH - Controller Enabled')
-    #
-    sleep(.5) # pause due to a possible change direction
-    GPIO.output(DIR, GPIO.HIGH)
-    # GPIO.output(DIRI, GPIO.HIGH)
-   # print('DIR set to HIGH - Moving Backward at ' + str(delay))
-   # print('Controller PUL being driven.')
-    #
-    for y in range(stepcount):
-        GPIO.output(PUL, GPIO.HIGH)
-        sleep(delay)
-        GPIO.output(PUL, GPIO.LOW)
-        sleep(delay)
-    GPIO.output(ENA, GPIO.LOW)
-    # GPIO.output(ENAI, GPIO.LOW)
-    #print('ENA set to LOW - Controller Disabled')
-    sleep(.5) # pause for possible change direction
-    return
+
+
+
+def goFarRightPostion():
+    takesteps(2200,0)

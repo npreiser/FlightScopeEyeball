@@ -22,14 +22,15 @@ ENA = 22  # Controller Enable Bit (High to Enable / LOW to Disable).
 # 
 
 durationFwd = 2000 # This is the duration of the motor spinning. used for forward direction
-delay = 0.002 # This is actualy a delay between PUL pulses - effectively sets the motor rotation speed.
-pulsedelay = 0.002
+delay = 0.0 # This is actualy a delay between PUL pulses - effectively sets the motor rotation speed.
+pulsedelay = 0.0
 #
 cycles = 1000 # This is the number of cycles to be run once program is started.
 #
 
 delPattern = re.compile("d(.*)")
 pulPattern = re.compile("p(.*)")
+ratPattern = re.compile("r(.*)")
 
 def setup():
     GPIO.setmode(GPIO.BCM)
@@ -85,9 +86,15 @@ def docmd(cmd):
         print ("Set Pulse Length:", pulsedelay)
         return
 
+    match = ratPattern.match(cmd)
+    if match:
+        pulsedelay = delay * float(match.group(1))
+        print ("Set Pulse Length:", pulsedelay)
+        return
+
     durationFwd = int(cmd)
     print("Do", durationFwd, "pulses")
-    for x in range(durationFwd): 
+    for x in range(durationFwd-1): 
         GPIO.output(PUL, GPIO.HIGH)
         sleep(pulsedelay)
         GPIO.output(PUL, GPIO.LOW)

@@ -70,13 +70,13 @@ def takesteps(stepcount, direction):
         GPIO.output(DIR, GPIO.HIGH)  # LEFT
   
   # PARAMS for acceleration /decel..
-    ACC_DCC_WINDOW_STEPS = 500 # how big of a window to accel or decel over .. 
-    ACC_DCC_RATE = .000001 # rate at which to inc/dec the delay... 
+    ACC_DCC_WINDOW_STEPS = 400 # how big of a window to accel or decel over .. 
+    ACC_DCC_RATE = .000003 # rate at which to inc/dec the delay... 
 
     accend = ACC_DCC_WINDOW_STEPS
     dccstart = stepcount-ACC_DCC_WINDOW_STEPS  # decel starts at end-500 steps
 
-    mydelay = .001  # starting delay.. it will inc/dec from here... 
+    mydelay = .002  # starting delay.. it will inc/dec from here... 
 
     # accel range
     printmax = False
@@ -99,12 +99,17 @@ def takesteps(stepcount, direction):
                 printmax = True
                 print("max speed delay:  %5f" % mydelay)
 
-    # GPIO.output(ENA, GPIO.LOW)  # disable
-   # sleep(.5) # pause for possible change direction
+        # home check 
+        if ishome() and direction == 1: # if moving Left and home,,, break out
+            print("made it home...done")
+            break
+
+
     GPIO.output(ENA, GPIO.HIGH) # disable, free up the motor. 
     return   
 
-
+def goFarLeftPostion():
+    takesteps(2200,1)
 
 def goFarRightPostion():
     takesteps(2200,0)

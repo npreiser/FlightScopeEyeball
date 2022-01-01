@@ -1,4 +1,4 @@
-from stepper import gohome,takesteps,ismanualmode,manualpositionleft,initIO,cleanupIO,goFarRightPostion
+from stepper import gohome,takesteps,ismanualmode,manualpositionleft,initIO,cleanupIO,goFarRightPostion,goFarLeftPostion
 
 
 initIO()
@@ -46,7 +46,7 @@ while True:
             positionswitch_debounce = 1000
             POSITION_LEFT = temppos
             if POSITION_LEFT == True:
-                gohome()
+                goFarLeftPostion()
                 print("Moved manual left position")
             else:
                 goFarRightPostion()

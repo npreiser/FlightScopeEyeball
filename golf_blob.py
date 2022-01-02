@@ -8,6 +8,8 @@ import cv2
 import requests
 import json
 import time
+import sys
+import select
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from stepper import gohome,takesteps,ismanualmode,manualpositionleft,initIO,cleanupIO,goFarRightPostion,goFarLeftPostion
@@ -21,15 +23,16 @@ class MyHandler(FileSystemEventHandler):
         self.callback = callback
         
     def on_modified(self, event):
-        if event.src_path == "./config.json":
+        if 'config.json' in event.src_path: #   == "./config.json":
             self.callback()
-        #print(f'event type: {event.event_type}  path : {event.src_path}')
+
+        print(f'event type: {event.event_type}  path : {event.src_path}')
 
 
 def callback():
     global reload_config
     reload_config = True
-    print("config.json file was modified")
+    print("config.json file was modified*************************")
         
   
 
@@ -37,7 +40,7 @@ def callback():
 current_tray_position = 0 
 
 HEADLESS = False
-TX_DATA = False  # set to enable/disable tranmsion of data.
+TX_DATA = True  # set to enable/disable tranmsion of data.
 # TARGET_IP_ADDR = '192.168.1.73'
 TARGET_IP_ADDR = 'localhost'
 
@@ -70,7 +73,7 @@ if __name__ == "__main__":
 
     event_handler = MyHandler(callback)
     observer = Observer()
-    observer.schedule(event_handler, path='.', recursive=False)
+    observer.schedule(event_handler, path='/home/pi/A_localGit/FlightScopeEyeball', recursive=False)
     observer.start()
 
     initIO()
@@ -95,6 +98,21 @@ if __name__ == "__main__":
     loopcount = 0
 
     while True:
+
+        # if select.select([sys.stdin,],[],[],0.0)[0]:
+            # print("Have data!")
+        #     cnt = 0
+            # for line in sys.stdin:
+            #     cnt += 1
+            #     print("got line : %s "% line)
+            #     print(cnt)
+            #     line = str(line)
+            #     if 'config' in line:
+            #         reload_config = True
+
+        # else:
+            # print ("No data")
+       
 
         loopcount += 1
         if loopcount > 500000:

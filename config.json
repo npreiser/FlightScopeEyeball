@@ -1,6 +1,6 @@
 {
-    "crop_y_start": 100,
-    "crop_y_end": 300,
+    "crop_y_start": 180,
+    "crop_y_end": 240,
     "crop_x_start": 0,
     "crop_x_end": 600,
     "filterByColor": true,
